@@ -1,0 +1,14 @@
+*.class
+*.jar
+hs_err_pid*
+
+*.o
+*.so
+*.dll
+
+.backup
+
+w64/*
+!.gitignore
+/src/swig/
+/src/trash
