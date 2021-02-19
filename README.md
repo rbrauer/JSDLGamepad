@@ -2,7 +2,7 @@
 JSDLGamepad is a minimal wrapper for using [SDL](http://libsdl.org/) to get gamepad input in Java. The native glue is generated using [SWIG](http://swig.org/) to cover a subset of SDL gamepad handling.
 
 ### Build
-The ```build.sh``` shell script generates Java and native glue code, compiles the native code for Linux and Windows x64, compiles the Java code, and packages everything in a jar. Assuming everything builds okay and SDL2 is available, it also runs the included example code.
+The ```build.sh``` shell script generates Java and native glue code, compiles the native code for Linux and Windows x64, compiles the Java code, and packages everything in a jar. Assuming everything builds okay and SDL2 is available, it also runs the included example code. The build looks for the Windows SDL2 dev files in the w64 file for the Windows cross-compile. They can be downloaded from the SDL site linked above.
 
 ### Use
 The SDL2 library must be available on ```java.library.path``` to use JSDLGamepad. Get it from the link above or your package manager.
