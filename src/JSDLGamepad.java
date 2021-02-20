@@ -1,18 +1,14 @@
 //https://web.archive.org/web/20140704120535/http://www.codethesis.com/blog/unload-java-jni-dll
 package com.r6753.sdlgamepad;
 
-import java.lang.ClassLoader;
-import java.lang.reflect.Constructor;
-
 import com.r6753.sdlgamepad.SDL_version;
 import static com.r6753.sdlgamepad.JSDLGamepad_SwigInterface.*;
 
+import java.lang.ClassLoader;
 import java.net.URLDecoder;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 public class JSDLGamepad {
   {
@@ -27,12 +23,15 @@ public class JSDLGamepad {
 
   private class InnerListener implements Runnable {
     {
-      System.out.println(System.getProperty("os.name"));
       String platform = "";
-      if(System.getProperty("os.name").startsWith("Windows")) {
+      String os = System.getProperty("os.name");
+      System.out.println("JSDLGamepad on " + os);
+      if(os.startsWith("Windows")) {
         platform = "win";
-      } else {
+      } else if(os.startsWith("Linux")) {
         platform = "lin";
+      } else {
+        throw new RuntimeException("os not supported");
       }
       loadNative(platform);
 
@@ -63,8 +62,8 @@ public class JSDLGamepad {
         String fspath = URLDecoder.decode(
           JSDLGamepad.class
             .getProtectionDomain()
-            .getCodeSource()
-            .getLocation().getPath(), "UTF-8");
+              .getCodeSource()
+                .getLocation().getPath(), "UTF-8");
         File ifFile = new File(new File(fspath).getParent(), filename);
         if(!ifFile.exists()) {
           Files.copy(
@@ -110,6 +109,7 @@ public class JSDLGamepad {
             SDL_GameControllerOpen(cde.getWhich());
             printLastError();
             gamepadAttached(++uid);
+            continue;
           }
           if(type == SDL_JOYDEVICEREMOVED) {
             int id = cde.getWhich();
@@ -117,18 +117,22 @@ public class JSDLGamepad {
             SDL_GameControllerClose(pointer);
             printLastError();
             gamepadRemoved(id);
+            continue;
           }
           if(type == SDL_CONTROLLERAXISMOTION) {
             SDL_ControllerAxisEvent cae = ev.getCaxis();
             axisMotion(cae.getWhich(), cae.getAxis(), cae.getValue());
+            continue;
           }
           if(type == SDL_CONTROLLERBUTTONDOWN) {
             SDL_ControllerButtonEvent cbe = ev.getCbutton();
             buttonPressed(cbe.getWhich(), cbe.getButton());
+            continue;
           }
           if(type == SDL_CONTROLLERBUTTONUP) {
             SDL_ControllerButtonEvent cbe = ev.getCbutton();
             buttonReleased(cbe.getWhich(), cbe.getButton());
+            continue;
           }
         }
       } catch(Throwable ex) {
@@ -139,39 +143,32 @@ public class JSDLGamepad {
         listening = false;
       }
     }
-
-    // public void finalize() {
-    //   try {
-    //     super.finalize();
-    //     System.out.println("culled");
-    //   } catch(Throwable ex) {}
-    // }
-  } // InnerListener
+  }
 
 /******************************************************************************/
 
-  public final int AXIS_LEFTX = SDL_CONTROLLER_AXIS_LEFTX;
-  public final int AXIS_LEFTY = SDL_CONTROLLER_AXIS_LEFTY;
-  public final int AXIS_RIGHTX = SDL_CONTROLLER_AXIS_RIGHTX;
-  public final int AXIS_RIGHTY = SDL_CONTROLLER_AXIS_RIGHTY;
-  public final int AXIS_TRIGGERLEFT = SDL_CONTROLLER_AXIS_TRIGGERLEFT;
-  public final int AXIS_TRIGGERRIGHT = SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
+  public static final int AXIS_LEFTX = SDL_CONTROLLER_AXIS_LEFTX;
+  public static final int AXIS_LEFTY = SDL_CONTROLLER_AXIS_LEFTY;
+  public static final int AXIS_RIGHTX = SDL_CONTROLLER_AXIS_RIGHTX;
+  public static final int AXIS_RIGHTY = SDL_CONTROLLER_AXIS_RIGHTY;
+  public static final int AXIS_TRIGGERLEFT = SDL_CONTROLLER_AXIS_TRIGGERLEFT;
+  public static final int AXIS_TRIGGERRIGHT = SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
 
-  public final int BUTTON_A = SDL_CONTROLLER_BUTTON_A;
-  public final int BUTTON_B = SDL_CONTROLLER_BUTTON_B;
-  public final int BUTTON_X = SDL_CONTROLLER_BUTTON_X;
-  public final int BUTTON_Y = SDL_CONTROLLER_BUTTON_Y;
-  public final int BUTTON_BACK = SDL_CONTROLLER_BUTTON_BACK;
-  public final int BUTTON_GUIDE = SDL_CONTROLLER_BUTTON_GUIDE;
-  public final int BUTTON_START = SDL_CONTROLLER_BUTTON_START;
-  public final int BUTTON_LEFTSTICK = SDL_CONTROLLER_BUTTON_LEFTSTICK;
-  public final int BUTTON_RIGHTSTICK = SDL_CONTROLLER_BUTTON_RIGHTSTICK;
-  public final int BUTTON_LEFTSHOULDER = SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
-  public final int BUTTON_RIGHTSHOULDER = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
-  public final int BUTTON_DPAD_UP = SDL_CONTROLLER_BUTTON_DPAD_UP;
-  public final int BUTTON_DPAD_DOWN = SDL_CONTROLLER_BUTTON_DPAD_DOWN;
-  public final int BUTTON_DPAD_LEFT = SDL_CONTROLLER_BUTTON_DPAD_LEFT;
-  public final int BUTTON_DPAD_RIGHT = SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+  public static final int BUTTON_A = SDL_CONTROLLER_BUTTON_A;
+  public static final int BUTTON_B = SDL_CONTROLLER_BUTTON_B;
+  public static final int BUTTON_X = SDL_CONTROLLER_BUTTON_X;
+  public static final int BUTTON_Y = SDL_CONTROLLER_BUTTON_Y;
+  public static final int BUTTON_BACK = SDL_CONTROLLER_BUTTON_BACK;
+  public static final int BUTTON_GUIDE = SDL_CONTROLLER_BUTTON_GUIDE;
+  public static final int BUTTON_START = SDL_CONTROLLER_BUTTON_START;
+  public static final int BUTTON_LEFTSTICK = SDL_CONTROLLER_BUTTON_LEFTSTICK;
+  public static final int BUTTON_RIGHTSTICK = SDL_CONTROLLER_BUTTON_RIGHTSTICK;
+  public static final int BUTTON_LEFTSHOULDER = SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
+  public static final int BUTTON_RIGHTSHOULDER = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+  public static final int BUTTON_DPAD_UP = SDL_CONTROLLER_BUTTON_DPAD_UP;
+  public static final int BUTTON_DPAD_DOWN = SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+  public static final int BUTTON_DPAD_LEFT = SDL_CONTROLLER_BUTTON_DPAD_LEFT;
+  public static final int BUTTON_DPAD_RIGHT = SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
 
 /******************************************************************************/
 
@@ -212,9 +209,14 @@ public class JSDLGamepad {
     }
     try {
       signalQuit();
+      if(Thread.currentThread() == eventThread) {
+        // can't wait for event thread to die here
+        // if called from event thread
+        // eventThread = null; //<-- libSDL segfault
+        return;
+      }
       eventThread.join();
       eventThread = null;
-      // System.gc();
     } catch(Throwable ex) {
       ex.printStackTrace();
     }
@@ -259,8 +261,8 @@ public class JSDLGamepad {
   public void gamepadAttached(int id) {}
   public void gamepadRemoved(int id) {}
   public void buttonPressed(int id, int button) {}
-  public void buttonReleased(int id, int button){}
-  public void axisMotion(int id, int axis, int value){}
+  public void buttonReleased(int id, int button) {}
+  public void axisMotion(int id, int axis, int value) {}
 
   public JSDLGamepad() {}
 }
